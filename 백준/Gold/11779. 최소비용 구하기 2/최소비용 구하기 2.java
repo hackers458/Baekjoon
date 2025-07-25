@@ -1,80 +1,92 @@
 import java.util.*;
 
-class Node implements Comparable<Node> {
-    int city;
-    int cost;
+class node implements Comparable<node> {
+    int end;
+    int distance;
 
-    public Node(int city, int cost) {
-        this.city = city;
-        this.cost = cost;
+    node(int end, int distance) {
+        this.end = end;
+        this.distance = distance;
     }
 
     @Override
-    public int compareTo(Node o) { //작은것부터
-        return this.cost - o.cost;
+    public int compareTo(node o) {
+        return this.distance - o.distance; // 거리 기준 오름차순
     }
 }
 
 public class Main {
-    static final int INF = 1_000_000_000;
+    static final int INF = 9999999;
+
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
         int n = sc.nextInt(); // 도시 수
-        int m = sc.nextInt(); // 버스 수
+        int m = sc.nextInt(); // 버스 개수
 
-        ArrayList<Node>[] graph = new ArrayList[n + 1];
-        for (int i = 1; i <= n; i++) graph[i] = new ArrayList<>();
-
-        for (int i = 0; i < m; i++) {
-            int from = sc.nextInt();
-            int to = sc.nextInt();
-            int cost = sc.nextInt();
-            graph[from].add(new Node(to, cost));
+        ArrayList<node>[] array = new ArrayList[n + 1];
+        for (int i = 0; i <= n; i++) {
+            array[i] = new ArrayList<>();
         }
 
-        int start = sc.nextInt();
-        int end = sc.nextInt();
+        for (int i = 0; i < m; i++) {
+            int start = sc.nextInt();
+            int end = sc.nextInt();
+            int dist = sc.nextInt();
 
-        int[] dist = new int[n + 1];
-        int[] parent = new int[n + 1];
-        Arrays.fill(dist, INF);
-        dist[start] = 0;
+            boolean updated = false;
+            for (int j = 0; j < array[start].size(); j++) {
+                node tmp = array[start].get(j);
+                if (tmp.end == end) {
+                    if (tmp.distance > dist) {
+                        array[start].set(j, new node(end, dist));
+                    }
+                    updated = true;
+                    break;
+                }
+            }
+            if (!updated) {
+                array[start].add(new node(end, dist));
+            }
+        }
 
-        PriorityQueue<Node> pq = new PriorityQueue<>();
-        pq.add(new Node(start, 0));
+        int start = sc.nextInt(); // 출발 도시
+        int end = sc.nextInt();   // 도착 도시
+
+        int[] distance = new int[n + 1];
+        Arrays.fill(distance, INF);
+        distance[start] = 0;
+
+        ArrayList<Integer>[] city = new ArrayList[n + 1]; // 경로 저장용
+        for (int i = 0; i <= n; i++) {
+            city[i] = new ArrayList<>();
+        }
+        city[start].add(start);
+
+        PriorityQueue<node> pq = new PriorityQueue<>();
+        pq.offer(new node(start, 0));
 
         while (!pq.isEmpty()) {
-            Node current = pq.poll();
-            int curCity = current.city;
-            int curCost = current.cost;
+            node cur = pq.poll();
 
-            if (dist[curCity] < curCost) continue;
+            if (distance[cur.end] < cur.distance) continue;
 
-            for (Node next : graph[curCity]) {
-                int nextCity = next.city;
-                int nextCost = curCost + next.cost;
-
-                if (dist[nextCity] > nextCost) {
-                    dist[nextCity] = nextCost;
-                    parent[nextCity] = curCity;
-                    pq.add(new Node(nextCity, nextCost));
+            for (node nxt : array[cur.end]) {
+                int newDist = distance[cur.end] + nxt.distance;
+                if (distance[nxt.end] > newDist) {
+                    distance[nxt.end] = newDist;
+                    city[nxt.end].clear();
+                    city[nxt.end].addAll(city[cur.end]);
+                    city[nxt.end].add(nxt.end);
+                    pq.offer(new node(nxt.end, newDist));
                 }
             }
         }
 
-        Stack<Integer> stack = new Stack<>();
-        int cur = end;
-        while (cur != 0) {
-            stack.push(cur);
-            cur = parent[cur];
-        }
-
-        System.out.println(dist[end]);
-        System.out.println(stack.size());
-        while (!stack.isEmpty()) {
-            System.out.print(stack.pop() + " ");
+        System.out.println(distance[end]);
+        System.out.println(city[end].size());
+        for (int c : city[end]) {
+            System.out.print(c + " ");
         }
     }
-    // 기존에 우선순위큐를 안써서 우선순위 큐로 사용
 }
