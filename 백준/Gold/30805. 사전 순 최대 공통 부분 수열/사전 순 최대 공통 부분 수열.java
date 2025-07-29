@@ -9,12 +9,12 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         int N = sc.nextInt();
         A = new ArrayList<>();
-        A.add(0);  // 1-based index
+        A.add(0);
         for (int i = 0; i < N; i++) A.add(sc.nextInt());
 
         int M = sc.nextInt();
         B = new ArrayList<>();
-        B.add(0);  // 1-based index
+        B.add(0);
         for (int i = 0; i < M; i++) B.add(sc.nextInt());
 
         dp = new int[N + 1][M + 1];
@@ -74,3 +74,8 @@ public class Main {
         return res;
     }
 }
+
+
+
+//해당 문제는 애초에 최장공통부분수열 알고리즘을 찾는게 아니었음.. 그냥 반복문 쓰거나 우선순위 큐를 사용했어야 됐음..
+//gpt를 참고하여 풀었으니 다시 복습할 것 
